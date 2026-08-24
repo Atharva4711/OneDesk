@@ -216,7 +216,7 @@ function AnalyticsModal({ quiz, onClose }) {
   const exportPdf = () => {
     if (!data) return;
     const doc = new jsPDF();
-    doc.setFontSize(16); doc.text(`AuraCampus — ${quiz.title} Analytics`, 14, 18);
+    doc.setFontSize(16); doc.text(`OneDesk — ${quiz.title} Analytics`, 14, 18);
     doc.setFontSize(10); doc.setTextColor(100);
     doc.text(`Subject: ${quiz.subject_name}   Class: ${quiz.class_name || "-"}   Year: ${quiz.academic_year || "-"}`, 14, 25);
     doc.text(`Attempts: ${data.stats.count}   Average: ${data.stats.avg}%   Top: ${data.stats.top}%   Lowest: ${data.stats.low}%`, 14, 31);

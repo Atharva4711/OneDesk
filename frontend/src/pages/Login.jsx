@@ -38,16 +38,16 @@ export default function Login() {
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div>
-            <div className="font-heading font-bold text-2xl">AuraCampus</div>
+            <div className="font-heading font-bold text-2xl">OneDesk</div>
             <div className="text-xs uppercase tracking-widest text-white/70">Smart Campus Suite</div>
           </div>
         </div>
         <div className="z-10">
           <div className="font-heading text-4xl font-bold leading-tight">
-            Where learning meets<br/> a beautiful aura.
+            Where learning meets<br/> seamless productivity.
           </div>
           <p className="text-white/80 mt-4 max-w-md">
-            One unified platform for timetables, QR attendance, assignments, quizzes, notices & lost & found.
+            One unified desk for timetables, QR attendance, assignments, quizzes, notices & lost & found.
           </p>
           <div className="grid grid-cols-3 gap-3 mt-8 max-w-md">
             {[
@@ -62,14 +62,14 @@ export default function Login() {
             ))}
           </div>
         </div>
-        <div className="text-xs text-white/60 z-10">© {new Date().getFullYear()} AuraCampus</div>
+        <div className="text-xs text-white/60 z-10">© {new Date().getFullYear()} OneDesk</div>
       </div>
 
       <div className="flex items-center justify-center p-6 lg:p-10">
         <div className="w-full max-w-md">
           <div className="mb-6">
             <div className="font-heading text-3xl font-bold text-slate-900">Welcome back</div>
-            <div className="text-slate-500 mt-1 text-sm">Sign in to continue to AuraCampus</div>
+            <div className="text-slate-500 mt-1 text-sm">Sign in to continue to OneDesk</div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 p-1 rounded-full bg-slate-100 mb-6">
@@ -91,7 +91,7 @@ export default function Login() {
               <input data-testid="login-email" type={isTeacher ? "email" : "text"} required
                 value={identifier} onChange={(e) => setIdentifier(e.target.value)}
                 className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                placeholder={isTeacher ? "you@auracampus.com" : "AC2025001"} />
+                placeholder={isTeacher ? "you@onedesk.com" : "AC2025001"} />
             </div>
             <div>
               <div className="flex items-center justify-between">
@@ -116,7 +116,7 @@ export default function Login() {
 
           <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-500">
             <div className="font-semibold text-slate-700 mb-1">Demo accounts</div>
-            Teacher — <span className="font-mono">teacher@auracampus.com / teacher123</span><br/>
+            Teacher — <span className="font-mono">teacher@onedesk.com / teacher123</span><br/>
             Student — enrollment <span className="font-mono">AC2025001 / student123</span>
           </div>
         </div>

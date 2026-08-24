@@ -38,7 +38,7 @@ export default function ForgotPassword() {
               <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Email or Enrollment number</label>
               <input data-testid="forgot-identifier" required value={identifier} onChange={(e) => setIdentifier(e.target.value)}
                 className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                placeholder="you@auracampus.com or AC2025001" />
+                placeholder="you@onedesk.com or AC2025001" />
             </div>
             <button data-testid="forgot-submit" disabled={loading}
               className="w-full py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold">

@@ -1,8 +1,8 @@
-// AuraCampus MERN Backend — Express + MongoDB
+// OneDesk MERN Backend — Express + MongoDB
 // Full API: auth (with enrollment login + forgot password + profile update),
 // subjects, timetable, attendance (QR + public landing), assignments (real
 // uploads), quizzes (multi-year, per-teacher/subject), notices (real Resend
-// email), lost & found, file upload proxy to Emergent Object Storage.
+// email), lost & found, file upload proxy.
 
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
@@ -21,10 +21,10 @@ const JWT_SECRET = process.env.JWT_SECRET || "changeme";
 const PORT = Number(process.env.PORT || process.env.NODE_PORT || 8002);
 const EMERGENT_LLM_KEY = process.env.EMERGENT_LLM_KEY || "";
 const EMERGENT_EMAIL_KEY = process.env.EMERGENT_EMAIL_KEY || "";
-const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "AuraCampus";
+const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "OneDesk";
 const INTEGRATION_PROXY_URL = (process.env.INTEGRATION_PROXY_URL || "https://integrations.emergentagent.com").replace(/\/$/, "");
 const FRONTEND_URL = process.env.FRONTEND_URL || "";
-const APP_NAME = "auracampus";
+const APP_NAME = "onedesk";
 
 const app = express();
 app.use(cors({ origin: "*" }));
@@ -92,7 +92,7 @@ async function loadUser(req, res, next) {
 const requireRole = (r) => (req, res, next) => req.role === r ? next() : res.status(403).json({ detail: `${r} access required` });
 
 // ----- meta -----
-app.get("/api/", (req, res) => res.json({ ok: true, app: "AuraCampus", stack: "MERN" }));
+app.get("/api/", (req, res) => res.json({ ok: true, app: "OneDesk", stack: "MERN" }));
 app.get("/api/meta", (req, res) => res.json({ departments: DEPARTMENTS, classes: CLASSES, academic_years: ACADEMIC_YEARS }));
 
 // -----  Email (Resend) -----
@@ -248,14 +248,14 @@ app.post("/api/auth/forgot-password", async (req, res) => {
     const html = `
       <table style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:auto;padding:24px;border:1px solid #eee;border-radius:12px">
         <tr><td>
-          <h2 style="color:#4F46E5;margin:0 0 12px 0">Reset your AuraCampus password</h2>
+          <h2 style="color:#4F46E5;margin:0 0 12px 0">Reset your OneDesk password</h2>
           <p>Hi ${u.name},</p>
           <p>Click the button below to reset your password. This link expires in 1 hour.</p>
           <p style="margin:24px 0"><a href="${link}" style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:600">Reset password</a></p>
           <p style="color:#64748b;font-size:12px">Or paste this URL into your browser: ${link}</p>
         </td></tr>
       </table>`;
-    await sendEmail({ to: u.email, subject: "Reset your AuraCampus password", html });
+    await sendEmail({ to: u.email, subject: "Reset your OneDesk password", html });
     console.log(`[reset] token for ${u.email}: ${token}`);
   }
   res.json({ ok: true, message: "If the account exists, a reset email has been sent." });
@@ -613,7 +613,7 @@ app.post("/api/notices", auth, loadUser, async (req, res) => {
     const html = `
       <table style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:auto;padding:24px;border:1px solid #eee;border-radius:12px">
         <tr><td>
-          <div style="color:#4F46E5;font-size:12px;font-weight:700;letter-spacing:2px">AURACAMPUS NOTICE</div>
+          <div style="color:#4F46E5;font-size:12px;font-weight:700;letter-spacing:2px">ONEDESK NOTICE</div>
           <h2 style="margin:8px 0 12px 0;color:#0f172a">${title}</h2>
           <p style="color:#334155;line-height:1.6;white-space:pre-wrap">${body}</p>
           <p style="color:#64748b;font-size:12px;margin-top:24px">Posted by ${req.user.name} • ${new Date().toLocaleString()}</p>
@@ -622,7 +622,7 @@ app.post("/api/notices", auth, loadUser, async (req, res) => {
     // send one-by-one (small volume) to keep individual delivery
     let sent = 0;
     for (const to of recipients.slice(0, 200)) {
-      const r = await sendEmail({ to, subject: `[AuraCampus] ${title}`, html });
+      const r = await sendEmail({ to, subject: `[OneDesk] ${title}`, html });
       if (r) sent++;
     }
     console.log(`[notice] '${title}' delivered=${sent}/${recipients.length}`);
@@ -680,14 +680,14 @@ app.get("/api/dashboard/stats", auth, loadUser, async (req, res) => {
 
 // ================ SEED + BOOT ================
 async function seed() {
-  const adminEmail = (process.env.ADMIN_EMAIL || "admin@auracampus.com").toLowerCase();
+  const adminEmail = (process.env.ADMIN_EMAIL || "admin@onedesk.com").toLowerCase();
   const adminPass = process.env.ADMIN_PASSWORD || "admin123";
   let admin = await db.collection("users").findOne({ email: adminEmail });
   let adminId;
   if (!admin) {
     adminId = uuidv4();
     await db.collection("users").insertOne({
-      id: adminId, name: "AuraCampus Admin", email: adminEmail, role: "teacher",
+      id: adminId, name: "OneDesk Admin", email: adminEmail, role: "teacher",
       phone: "", department: "Administration", class_name: "", academic_year: "",
       subjects: ["Data Structures", "Web Technology"], enrollment_number: null,
       password_hash: hashPw(adminPass), created_at: nowIso(),
@@ -695,24 +695,24 @@ async function seed() {
     console.log("[seed] admin created:", adminEmail);
   } else adminId = admin.id;
 
-  if (!(await db.collection("users").findOne({ email: "teacher@auracampus.com" }))) {
+  if (!(await db.collection("users").findOne({ email: "teacher@onedesk.com" }))) {
     await db.collection("users").insertOne({
-      id: uuidv4(), name: "Prof. Anita Sharma", email: "teacher@auracampus.com", role: "teacher",
+      id: uuidv4(), name: "Prof. Anita Sharma", email: "teacher@onedesk.com", role: "teacher",
       phone: "9999999999", department: "Computer Engineering", class_name: "", academic_year: "",
       subjects: ["Data Structures", "Web Technology"], enrollment_number: null,
       password_hash: hashPw("teacher123"), created_at: nowIso(),
     });
   }
-  const stu = await db.collection("users").findOne({ email: "student@auracampus.com" });
+  const stu = await db.collection("users").findOne({ email: "student@onedesk.com" });
   if (!stu) {
     await db.collection("users").insertOne({
-      id: uuidv4(), name: "Rohan Verma", email: "student@auracampus.com", role: "student",
+      id: uuidv4(), name: "Rohan Verma", email: "student@onedesk.com", role: "student",
       phone: "8888888888", department: "Computer Engineering", class_name: "SE-A", academic_year: "2025-26",
       subjects: [], enrollment_number: "AC2025001",
       password_hash: hashPw("student123"), created_at: nowIso(),
     });
   } else if (!stu.enrollment_number) {
-    await db.collection("users").updateOne({ email: "student@auracampus.com" }, { $set: { enrollment_number: "AC2025001", academic_year: "2025-26" } });
+    await db.collection("users").updateOne({ email: "student@onedesk.com" }, { $set: { enrollment_number: "AC2025001", academic_year: "2025-26" } });
   }
 
   const scount = await db.collection("subjects").countDocuments({ teacher_id: adminId });
@@ -725,7 +725,7 @@ async function seed() {
     ];
     for (const s of seeds) {
       await db.collection("subjects").insertOne({
-        id: uuidv4(), ...s, teacher_id: adminId, teacher_name: "AuraCampus Admin", created_at: nowIso(),
+        id: uuidv4(), ...s, teacher_id: adminId, teacher_name: "OneDesk Admin", created_at: nowIso(),
       });
     }
   }

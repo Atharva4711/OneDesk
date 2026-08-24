@@ -1,7 +1,7 @@
 {
-  "name": "auracampus-backend",
+  "name": "onedesk-backend",
   "version": "1.0.0",
-  "description": "AuraCampus Express backend (MongoDB + Express + Node)",
+  "description": "OneDesk Express backend (MongoDB + Express + Node)",
   "main": "server.js",
   "scripts": { "start": "node server.js" },
   "dependencies": {

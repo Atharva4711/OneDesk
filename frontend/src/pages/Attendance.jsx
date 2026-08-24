@@ -79,7 +79,7 @@ function TeacherAttendance() {
   const exportDefaulters = () => {
     if (!report) return;
     const doc = new jsPDF();
-    doc.setFontSize(18); doc.text("AuraCampus — Defaulter Report (<75%)", 14, 18);
+    doc.setFontSize(18); doc.text("OneDesk — Defaulter Report (<75%)", 14, 18);
     doc.setFontSize(10); doc.setTextColor(100); doc.text(new Date().toLocaleString(), 14, 25);
     autoTable(doc, {
       startY: 30,

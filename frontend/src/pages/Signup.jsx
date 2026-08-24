@@ -46,7 +46,7 @@ export default function Signup() {
           </div>
           <div>
             <div className="font-heading text-2xl font-bold">Create account</div>
-            <div className="text-xs text-slate-500">Join AuraCampus in seconds</div>
+            <div className="text-xs text-slate-500">Join OneDesk in seconds</div>
           </div>
         </div>
 

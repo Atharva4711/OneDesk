@@ -62,7 +62,7 @@ export default function Layout({ children }) {
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div>
-            <div className="font-heading font-bold text-lg leading-tight">AuraCampus</div>
+            <div className="font-heading font-bold text-lg leading-tight">OneDesk</div>
             <div className="text-[11px] uppercase tracking-widest text-slate-400">Smart Campus</div>
           </div>
         </div>

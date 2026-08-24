@@ -60,7 +60,7 @@ export default function PublicAttend() {
             <GraduationCap className="w-6 h-6" />
           </div>
           <div>
-            <div className="font-heading font-bold text-2xl">AuraCampus</div>
+            <div className="font-heading font-bold text-2xl">OneDesk</div>
             <div className="text-xs uppercase tracking-widest text-white/70">Quick Attendance</div>
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function PublicAttend() {
             </>
           )}
         </div>
-        <div className="text-center text-white/70 text-xs mt-4">Powered by AuraCampus • Secure QR</div>
+        <div className="text-center text-white/70 text-xs mt-4">Powered by OneDesk • Secure QR</div>
       </div>
     </div>
   );
