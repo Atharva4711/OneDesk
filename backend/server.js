@@ -756,11 +756,14 @@ async function seed() {
   try {
     await connectDb();
     await seed();
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`[express] ${APP_NAME} server running on port ${PORT}`);
-    });
   } catch (e) {
-    console.error("[express] boot error:", e);
-    process.exit(1);
+    console.error("[express] boot initialization warning:", e.message);
   }
+  
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`[express] ${APP_NAME} server running on 0.0.0.0:${PORT}`);
+  });
+  server.on("error", (err) => {
+    console.error("[express] server listen error:", err);
+  });
 })();
