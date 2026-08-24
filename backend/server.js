@@ -680,54 +680,69 @@ app.get("/api/dashboard/stats", auth, loadUser, async (req, res) => {
 
 // ================ SEED + BOOT ================
 async function seed() {
-  const adminEmail = (process.env.ADMIN_EMAIL || "admin@onedesk.com").toLowerCase();
-  const adminPass = process.env.ADMIN_PASSWORD || "admin123";
-  let admin = await db.collection("users").findOne({ email: adminEmail });
-  let adminId;
-  if (!admin) {
-    adminId = uuidv4();
-    await db.collection("users").insertOne({
-      id: adminId, name: "OneDesk Admin", email: adminEmail, role: "teacher",
-      phone: "", department: "Administration", class_name: "", academic_year: "",
-      subjects: ["Data Structures", "Web Technology"], enrollment_number: null,
-      password_hash: hashPw(adminPass), created_at: nowIso(),
-    });
-    console.log("[seed] admin created:", adminEmail);
-  } else adminId = admin.id;
+  try {
+    const adminEmail = (process.env.ADMIN_EMAIL || "admin@onedesk.com").toLowerCase();
+    const adminPass = process.env.ADMIN_PASSWORD || "admin123";
+    let admin = await db.collection("users").findOne({ email: adminEmail });
+    let adminId;
+    if (!admin) {
+      adminId = uuidv4();
+      try {
+        await db.collection("users").insertOne({
+          id: adminId, name: "OneDesk Admin", email: adminEmail, role: "teacher",
+          phone: "", department: "Administration", class_name: "", academic_year: "",
+          subjects: ["Data Structures", "Web Technology"], enrollment_number: null,
+          password_hash: hashPw(adminPass), created_at: nowIso(),
+        });
+        console.log("[seed] admin created:", adminEmail);
+      } catch (e) {}
+    } else adminId = admin.id;
 
-  if (!(await db.collection("users").findOne({ email: "teacher@onedesk.com" }))) {
-    await db.collection("users").insertOne({
-      id: uuidv4(), name: "Prof. Anita Sharma", email: "teacher@onedesk.com", role: "teacher",
-      phone: "9999999999", department: "Computer Engineering", class_name: "", academic_year: "",
-      subjects: ["Data Structures", "Web Technology"], enrollment_number: null,
-      password_hash: hashPw("teacher123"), created_at: nowIso(),
-    });
-  }
-  const stu = await db.collection("users").findOne({ email: "student@onedesk.com" });
-  if (!stu) {
-    await db.collection("users").insertOne({
-      id: uuidv4(), name: "Rohan Verma", email: "student@onedesk.com", role: "student",
-      phone: "8888888888", department: "Computer Engineering", class_name: "SE-A", academic_year: "2025-26",
-      subjects: [], enrollment_number: "AC2025001",
-      password_hash: hashPw("student123"), created_at: nowIso(),
-    });
-  } else if (!stu.enrollment_number) {
-    await db.collection("users").updateOne({ email: "student@onedesk.com" }, { $set: { enrollment_number: "AC2025001", academic_year: "2025-26" } });
-  }
-
-  const scount = await db.collection("subjects").countDocuments({ teacher_id: adminId });
-  if (scount === 0) {
-    const seeds = [
-      { name: "Data Structures", code: "CS201", color: "indigo" },
-      { name: "Web Technology", code: "CS305", color: "orange" },
-      { name: "Database Management", code: "CS303", color: "teal" },
-      { name: "Operating Systems", code: "CS302", color: "purple" },
-    ];
-    for (const s of seeds) {
-      await db.collection("subjects").insertOne({
-        id: uuidv4(), ...s, teacher_id: adminId, teacher_name: "OneDesk Admin", created_at: nowIso(),
-      });
+    if (!(await db.collection("users").findOne({ email: "teacher@onedesk.com" }))) {
+      try {
+        await db.collection("users").insertOne({
+          id: uuidv4(), name: "Prof. Anita Sharma", email: "teacher@onedesk.com", role: "teacher",
+          phone: "9999999999", department: "Computer Engineering", class_name: "", academic_year: "",
+          subjects: ["Data Structures", "Web Technology"], enrollment_number: null,
+          password_hash: hashPw("teacher123"), created_at: nowIso(),
+        });
+      } catch (e) {}
     }
+
+    const stu = await db.collection("users").findOne({ $or: [{ email: "student@onedesk.com" }, { enrollment_number: "AC2025001" }] });
+    if (!stu) {
+      try {
+        await db.collection("users").insertOne({
+          id: uuidv4(), name: "Rohan Verma", email: "student@onedesk.com", role: "student",
+          phone: "8888888888", department: "Computer Engineering", class_name: "SE-A", academic_year: "2025-26",
+          subjects: [], enrollment_number: "AC2025001",
+          password_hash: hashPw("student123"), created_at: nowIso(),
+        });
+      } catch (e) {}
+    } else {
+      try {
+        await db.collection("users").updateOne({ id: stu.id }, { $set: { enrollment_number: "AC2025001", academic_year: "2025-26", email: "student@onedesk.com" } });
+      } catch (e) {}
+    }
+
+    const scount = await db.collection("subjects").countDocuments({ teacher_id: adminId });
+    if (scount === 0) {
+      const seeds = [
+        { name: "Data Structures", code: "CS201", color: "indigo" },
+        { name: "Web Technology", code: "CS305", color: "orange" },
+        { name: "Database Management", code: "CS303", color: "teal" },
+        { name: "Operating Systems", code: "CS302", color: "purple" },
+      ];
+      for (const s of seeds) {
+        try {
+          await db.collection("subjects").insertOne({
+            id: uuidv4(), ...s, teacher_id: adminId, teacher_name: "OneDesk Admin", created_at: nowIso(),
+          });
+        } catch (e) {}
+      }
+    }
+  } catch (e) {
+    console.warn("[seed] note:", e.message);
   }
 }
 
