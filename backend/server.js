@@ -97,7 +97,10 @@ async function loadUser(req, res, next) {
 }
 const requireRole = (r) => (req, res, next) => req.role === r ? next() : res.status(403).json({ detail: `${r} access required` });
 
-// ----- meta -----
+// ----- health & meta -----
+app.get("/", (req, res) => res.json({ ok: true, app: "OneDesk", status: "online", stack: "MERN" }));
+app.get("/health", (req, res) => res.json({ status: "healthy", time: new Date().toISOString() }));
+app.get("/api", (req, res) => res.json({ ok: true, app: "OneDesk", stack: "MERN" }));
 app.get("/api/", (req, res) => res.json({ ok: true, app: "OneDesk", stack: "MERN" }));
 app.get("/api/meta", (req, res) => res.json({ departments: DEPARTMENTS, classes: CLASSES, academic_years: ACADEMIC_YEARS }));
 
