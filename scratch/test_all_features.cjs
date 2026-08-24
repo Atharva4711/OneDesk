@@ -75,24 +75,25 @@ async function testAll() {
   // 5. Timetable & Conflict Detection
   let slotId = "";
   await check("Timetable Slot Creation & Conflict Overlap Prevention", async () => {
+    const randomDay = Math.floor(Math.random() * 5); // 0..4
     const slot = await axios.post(`${BASE}/timetable`, {
       subject_id: subjectId,
       class_name: "SE-A",
       academic_year: "2",
-      day: 1, // Tue
+      day: randomDay,
       start_time: "10:00",
       end_time: "11:00",
       room: "Lab 3"
     }, tAuth);
     slotId = slot.data.id;
 
-    // Try creating overlapping slot for SE-A on Tue 10:30-11:30
+    // Try creating overlapping slot for SE-A on same day 10:30-11:30
     try {
       await axios.post(`${BASE}/timetable`, {
         subject_id: subjectId,
         class_name: "SE-A",
         academic_year: "2",
-        day: 1,
+        day: randomDay,
         start_time: "10:30",
         end_time: "11:30",
         room: "Lab 4"
@@ -102,6 +103,9 @@ async function testAll() {
       if (!err.response || err.response.status !== 400) throw err;
       // Overlap correctly rejected!
     }
+
+    // Clean up created test slot
+    await axios.delete(`${BASE}/timetable/${slotId}`, tAuth);
   });
 
   // 6. Attendance & Geofencing Lock
