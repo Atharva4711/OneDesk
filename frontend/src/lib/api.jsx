@@ -3,10 +3,10 @@ import axios from "axios";
 function getCleanBackendUrl() {
   let raw = import.meta.env.VITE_BACKEND_URL || "";
   raw = String(raw).trim();
-  if (!raw) {
+  if (!raw || raw.includes("onedesk-production-ec3c")) {
     // If in development mode and no env set, fallback to localhost:8002
-    if (import.meta.env.DEV) return "http://localhost:8002";
-    return "https://onedesk-production-ec3c.up.railway.app";
+    if (import.meta.env.DEV && !raw) return "http://localhost:8002";
+    return "https://onedesk-production-62b0.up.railway.app";
   }
   if (!/^https?:\/\//i.test(raw)) {
     raw = `https://${raw}`;
