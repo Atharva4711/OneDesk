@@ -55,11 +55,12 @@ const CLASSES = ["FE-A", "FE-B", "SE-A", "SE-B", "TE-A", "TE-B", "BE-A", "BE-B"]
 let db;
 let client;
 async function connectDb() {
+  if (db) return db;
   client = new MongoClient(MONGO_URL);
   await client.connect();
   db = client.db(DB_NAME);
   const safeIndex = async (col, keys, opts) => {
-    try { await db.collection(col).createIndex(keys, opts); } catch (e) { /* index exists or minor spec difference */ }
+    try { await db.collection(col).createIndex(keys, opts); } catch (e) { /* index exists */ }
   };
   await safeIndex("users", { email: 1 }, { unique: true });
   await safeIndex("users", { id: 1 }, { unique: true });
@@ -71,7 +72,24 @@ async function connectDb() {
   await safeIndex("timetable", { id: 1 }, { unique: true });
   await safeIndex("password_resets", { expires_at: 1 });
   console.log("[express] Mongo connected:", DB_NAME);
+  return db;
 }
+
+let seedRan = false;
+app.use(async (req, res, next) => {
+  if (!db) {
+    try {
+      await connectDb();
+      if (!seedRan) {
+        seedRan = true;
+        await seed();
+      }
+    } catch (e) {
+      console.warn("[express] db middleware warning:", e.message);
+    }
+  }
+  next();
+});
 
 // ----- helpers -----
 const clean = (d) => { if (!d) return d; const c = { ...d }; delete c._id; return c; };
@@ -755,18 +773,22 @@ async function seed() {
   }
 }
 
-(async () => {
-  try {
-    await connectDb();
-    await seed();
-  } catch (e) {
-    console.error("[express] boot initialization warning:", e.message);
-  }
-  
-  const server = app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[express] ${APP_NAME} server running on 0.0.0.0:${PORT}`);
-  });
-  server.on("error", (err) => {
-    console.error("[express] server listen error:", err);
-  });
-})();
+if (!process.env.VERCEL) {
+  (async () => {
+    try {
+      await connectDb();
+      await seed();
+    } catch (e) {
+      console.error("[express] boot initialization warning:", e.message);
+    }
+    
+    const server = app.listen(PORT, "0.0.0.0", () => {
+      console.log(`[express] ${APP_NAME} server running on 0.0.0.0:${PORT}`);
+    });
+    server.on("error", (err) => {
+      console.error("[express] server listen error:", err);
+    });
+  })();
+}
+
+module.exports = app;

@@ -3,19 +3,19 @@ import axios from "axios";
 function getCleanBackendUrl() {
   let raw = import.meta.env.VITE_BACKEND_URL || "";
   raw = String(raw).trim();
-  if (!raw || raw.includes("onedesk-production-ec3c")) {
-    // If in development mode and no env set, fallback to localhost:8002
-    if (import.meta.env.DEV && !raw) return "http://localhost:8002";
-    return "https://onedesk-production-62b0.up.railway.app";
+  // In local development mode, connect to local Express server on port 8002
+  if (import.meta.env.DEV && !raw) return "http://localhost:8002";
+  // If a custom external backend URL is explicitly configured
+  if (raw && !raw.includes("onedesk-production") && !raw.includes("localhost")) {
+    if (!/^https?:\/\//i.test(raw)) raw = `https://${raw}`;
+    return raw.replace(/\/+$/, "");
   }
-  if (!/^https?:\/\//i.test(raw)) {
-    raw = `https://${raw}`;
-  }
-  return raw.replace(/\/+$/, "");
+  // In production on Vercel, use same-origin relative /api (0 CORS, 0 Network Error!)
+  return "";
 }
 
 export const BACKEND_URL = getCleanBackendUrl();
-export const API_BASE = `${BACKEND_URL}/api`;
+export const API_BASE = BACKEND_URL ? `${BACKEND_URL}/api` : "/api";
 
 const api = axios.create({ baseURL: API_BASE });
 
