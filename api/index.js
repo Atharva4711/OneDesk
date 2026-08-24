@@ -43,41 +43,31 @@ const DEPARTMENTS = [
 ];
 const CLASSES = ["FE-A", "FE-B", "SE-A", "SE-B", "TE-A", "TE-B", "BE-A", "BE-B"];
 
-// ----- Mongo -----
-let db;
-let client;
-async function connectDb() {
-  if (db) return db;
-  client = new MongoClient(MONGO_URL);
-  await client.connect();
-  db = client.db(DB_NAME);
-  const safeIndex = async (col, keys, opts) => {
-    try { await db.collection(col).createIndex(keys, opts); } catch (e) {}
-  };
-  await safeIndex("users", { email: 1 }, { unique: true });
-  await safeIndex("users", { id: 1 }, { unique: true });
-  await safeIndex("users", { enrollment_number: 1 }, { unique: true, sparse: true });
-  await safeIndex("subjects", { id: 1 }, { unique: true });
-  await safeIndex("assignments", { id: 1 }, { unique: true });
-  await safeIndex("quizzes", { id: 1 }, { unique: true });
-  await safeIndex("attendance_sessions", { token: 1 });
-  await safeIndex("timetable", { id: 1 }, { unique: true });
-  await safeIndex("password_resets", { expires_at: 1 });
-  return db;
+// ----- Mongo Connection Pooling for Vercel -----
+let cachedClient = null;
+let cachedDb = null;
+
+async function getDb() {
+  if (cachedDb) return cachedDb;
+  if (!cachedClient) {
+    cachedClient = new MongoClient(MONGO_URL, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    await cachedClient.connect();
+  }
+  cachedDb = cachedClient.db(DB_NAME);
+  db = cachedDb;
+  return cachedDb;
 }
 
-let seedRan = false;
+let db = null;
 app.use(async (req, res, next) => {
-  if (!db) {
-    try {
-      await connectDb();
-      if (!seedRan) {
-        seedRan = true;
-        await seed();
-      }
-    } catch (e) {
-      console.warn("[express] db middleware warning:", e.message);
-    }
+  try {
+    db = await getDb();
+  } catch (e) {
+    console.error("[mongo connection warning]", e.message);
   }
   next();
 });
@@ -742,5 +732,8 @@ async function seed() {
 }
 
 export default function handler(req, res) {
+  if (req.url && !req.url.startsWith("/api") && !req.url.startsWith("/files") && req.url !== "/health" && req.url !== "/") {
+    req.url = `/api${req.url.startsWith("/") ? "" : "/"}${req.url}`;
+  }
   return app(req, res);
 }
