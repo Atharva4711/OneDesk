@@ -16,11 +16,13 @@ export default function Attendance() {
 
 const FRONT = window.location.origin;
 
+const DEFAULT_CLASSES = ["FE-A", "FE-B", "SE-A", "SE-B", "TE-A", "TE-B", "BE-A", "BE-B"];
+
 // ---------------- Teacher ----------------
 function TeacherAttendance() {
   const [subjects, setSubjects] = useState([]);
   const [subjectId, setSubjectId] = useState("");
-  const [meta, setMeta] = useState({ classes: [] });
+  const [meta, setMeta] = useState({ classes: DEFAULT_CLASSES });
   const [className, setClassName] = useState("SE-A");
   const [duration, setDuration] = useState(10);
   const [session, setSession] = useState(null);
@@ -31,9 +33,11 @@ function TeacherAttendance() {
   const [rotator, setRotator] = useState(0);
 
   useEffect(() => {
-    api.get("/subjects").then(r => { setSubjects(r.data); if (r.data[0]) setSubjectId(r.data[0].id); });
-    api.get("/meta").then(r => setMeta(r.data));
-    api.get("/attendance/report").then(r => setReport(r.data));
+    api.get("/subjects").then(r => { setSubjects(r.data); if (r.data[0]) setSubjectId(r.data[0].id); }).catch(() => {});
+    api.get("/meta").then(r => {
+      if (r.data?.classes?.length) setMeta({ classes: r.data.classes });
+    }).catch(() => {});
+    api.get("/attendance/report").then(r => setReport(r.data)).catch(() => {});
   }, []);
 
   // Poll server every 5 seconds to update dynamic rotating token and live marks list

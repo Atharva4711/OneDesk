@@ -4,11 +4,13 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Plus, Download, Upload, Check, X, Clock, Paperclip } from "lucide-react";
 
+const DEFAULT_CLASSES = ["FE-A", "FE-B", "SE-A", "SE-B", "TE-A", "TE-B", "BE-A", "BE-B"];
+
 export default function Assignments() {
   const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [meta, setMeta] = useState({ classes: [] });
+  const [meta, setMeta] = useState({ classes: DEFAULT_CLASSES });
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [active, setActive] = useState(null);
@@ -18,12 +20,17 @@ export default function Assignments() {
 
   const load = () => {
     const q = subjectFilter !== "all" ? `?subject_id=${subjectFilter}` : "";
-    return api.get(`/assignments${q}`).then(r => setItems(r.data));
+    return api.get(`/assignments${q}`).then(r => setItems(r.data)).catch(() => {});
   };
   useEffect(() => { load(); }, [subjectFilter]);
   useEffect(() => {
-    api.get("/subjects").then(r => setSubjects(r.data));
-    api.get("/meta").then(r => setMeta(r.data));
+    api.get("/subjects").then(r => {
+      setSubjects(r.data);
+      if (r.data?.length > 0) setForm(f => ({ ...f, subject_id: f.subject_id || r.data[0].id }));
+    }).catch(() => {});
+    api.get("/meta").then(r => {
+      if (r.data?.classes?.length) setMeta({ classes: r.data.classes });
+    }).catch(() => {});
   }, []);
 
   const uploadFile = async (file) => {

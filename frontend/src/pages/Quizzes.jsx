@@ -7,11 +7,14 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
+const DEFAULT_CLASSES = ["FE-A", "FE-B", "SE-A", "SE-B", "TE-A", "TE-B", "BE-A", "BE-B"];
+const DEFAULT_YEARS = ["1", "2", "3", "4"];
+
 export default function Quizzes() {
   const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [meta, setMeta] = useState({ classes: [], academic_years: [] });
+  const [meta, setMeta] = useState({ classes: DEFAULT_CLASSES, academic_years: DEFAULT_YEARS });
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
@@ -22,12 +25,19 @@ export default function Quizzes() {
     const params = new URLSearchParams();
     if (subjectFilter !== "all") params.set("subject_id", subjectFilter);
     if (yearFilter !== "all") params.set("academic_year", yearFilter);
-    return api.get(`/quizzes?${params.toString()}`).then(r => setItems(r.data));
+    return api.get(`/quizzes?${params.toString()}`).then(r => setItems(r.data)).catch(() => {});
   };
   useEffect(() => { load(); }, [subjectFilter, yearFilter]);
   useEffect(() => {
-    api.get("/subjects").then(r => setSubjects(r.data));
-    api.get("/meta").then(r => setMeta(r.data));
+    api.get("/subjects").then(r => setSubjects(r.data)).catch(() => {});
+    api.get("/meta").then(r => {
+      if (r.data) {
+        setMeta({
+          classes: r.data.classes?.length ? r.data.classes : DEFAULT_CLASSES,
+          academic_years: r.data.academic_years?.length ? r.data.academic_years : DEFAULT_YEARS
+        });
+      }
+    }).catch(() => {});
   }, []);
 
   return (

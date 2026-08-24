@@ -15,21 +15,36 @@ const COLOR_BG = {
 };
 const YEAR_LABEL = { "1": "1st Year", "2": "2nd Year", "3": "3rd Year", "4": "4th Year" };
 
+const DEFAULT_CLASSES = ["FE-A", "FE-B", "SE-A", "SE-B", "TE-A", "TE-B", "BE-A", "BE-B"];
+const DEFAULT_YEARS = ["1", "2", "3", "4"];
+
 export default function Timetable() {
   const { user } = useAuth();
   const [entries, setEntries] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [meta, setMeta] = useState({ classes: [], academic_years: [] });
+  const [meta, setMeta] = useState({ classes: DEFAULT_CLASSES, academic_years: DEFAULT_YEARS });
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ subject_id: "", class_name: "SE-A", academic_year: "2", day: 0, start_time: "09:00", end_time: "10:00", room: "" });
   const [showQuick, setShowQuick] = useState(false);
   const [quickForm, setQuickForm] = useState({ name: "", code: "", color: "indigo" });
 
-  const load = () => api.get("/timetable").then(r => setEntries(r.data));
-  const loadSubjects = () => api.get("/subjects").then(r => setSubjects(r.data));
+  const load = () => api.get("/timetable").then(r => setEntries(r.data)).catch(() => {});
+  const loadSubjects = () => api.get("/subjects").then(r => {
+    setSubjects(r.data);
+    if (r.data?.length > 0) {
+      setForm(f => ({ ...f, subject_id: f.subject_id || r.data[0].id }));
+    }
+  }).catch(() => {});
   useEffect(() => {
     load(); loadSubjects();
-    api.get("/meta").then(r => setMeta(r.data));
+    api.get("/meta").then(r => {
+      if (r.data) {
+        setMeta({
+          classes: r.data.classes?.length ? r.data.classes : DEFAULT_CLASSES,
+          academic_years: r.data.academic_years?.length ? r.data.academic_years : DEFAULT_YEARS
+        });
+      }
+    }).catch(() => {});
   }, []);
 
   const create = async (e) => {

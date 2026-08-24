@@ -4,16 +4,38 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { User, Mail, Phone, Building2, GraduationCap, Hash, KeyRound } from "lucide-react";
 
+const DEFAULT_DEPARTMENTS = [
+  "Computer Engineering", "Information Technology", "Electronics & Telecommunication",
+  "Mechanical Engineering", "Civil Engineering", "Electrical Engineering",
+  "Artificial Intelligence & Data Science", "Administration"
+];
+const DEFAULT_CLASSES = ["FE-A", "FE-B", "SE-A", "SE-B", "TE-A", "TE-B", "BE-A", "BE-B"];
+const DEFAULT_YEARS = ["1", "2", "3", "4"];
+
 export default function Profile() {
   const { user, setUser } = useAuth();
-  const [meta, setMeta] = useState({ departments: [], classes: [], academic_years: [] });
+  const [meta, setMeta] = useState({
+    departments: DEFAULT_DEPARTMENTS,
+    classes: DEFAULT_CLASSES,
+    academic_years: DEFAULT_YEARS
+  });
   const [form, setForm] = useState({
-    name: user?.name || "", phone: user?.phone || "", department: user?.department || "",
-    class_name: user?.class_name || "", academic_year: user?.academic_year || "",
+    name: user?.name || "", phone: user?.phone || "", department: user?.department || DEFAULT_DEPARTMENTS[0],
+    class_name: user?.class_name || DEFAULT_CLASSES[2], academic_year: user?.academic_year || "2",
   });
   const [pw, setPw] = useState({ current_password: "", new_password: "" });
 
-  useEffect(() => { api.get("/meta").then(r => setMeta(r.data)); }, []);
+  useEffect(() => {
+    api.get("/meta").then(r => {
+      if (r.data) {
+        setMeta({
+          departments: r.data.departments?.length ? r.data.departments : DEFAULT_DEPARTMENTS,
+          classes: r.data.classes?.length ? r.data.classes : DEFAULT_CLASSES,
+          academic_years: r.data.academic_years?.length ? r.data.academic_years : DEFAULT_YEARS
+        });
+      }
+    }).catch(() => {});
+  }, []);
 
   const save = async (e) => {
     e.preventDefault();

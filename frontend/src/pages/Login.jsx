@@ -114,10 +114,35 @@ export default function Login() {
             <Link to="/signup" data-testid="go-signup" className="text-indigo-600 font-semibold hover:underline">Create one</Link>
           </div>
 
-          <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-500">
-            <div className="font-semibold text-slate-700 mb-1">Demo accounts</div>
-            Teacher — <span className="font-mono">teacher@onedesk.com / teacher123</span><br/>
-            Student — enrollment <span className="font-mono">AC2025001 / student123</span>
+          <div className="mt-6 p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 text-xs text-slate-600 space-y-2">
+            <div className="font-semibold text-slate-800">Quick Demo Testing</div>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => {
+                  setRole("teacher");
+                  setIdentifier("teacher@onedesk.com");
+                  setPassword("teacher123");
+                }}
+                className="pill bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-medium py-1 px-3"
+              >
+                Auto-fill Teacher
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRole("student");
+                  setIdentifier("AC2025001");
+                  setPassword("student123");
+                }}
+                className="pill bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-medium py-1 px-3"
+              >
+                Auto-fill Student
+              </button>
+            </div>
+            <div className="text-[11px] text-slate-400">
+              Teacher: <span className="font-mono">teacher@onedesk.com</span> • Student: <span className="font-mono">AC2025001</span>
+            </div>
           </div>
         </div>
       </div>
