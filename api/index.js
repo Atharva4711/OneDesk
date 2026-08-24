@@ -1,3 +1,5 @@
-const app = require("../backend/server.js");
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const app = require("../backend/server.cjs");
 
-module.exports = app;
+export default app;
