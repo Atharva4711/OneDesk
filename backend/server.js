@@ -15,9 +15,9 @@ const { v4: uuidv4 } = require("uuid");
 const { MongoClient } = require("mongodb");
 const crypto = require("crypto");
 
-const MONGO_URL = process.env.MONGO_URL;
+const MONGO_URL = process.env.MONGO_URL || "mongodb+srv://atharvateli4711_db_user:psH9WfWq8E1YbksG@usersdb.hzybrfu.mongodb.net/?retryWrites=true&w=majority";
 const DB_NAME = process.env.DB_NAME || "auracampus";
-const JWT_SECRET = process.env.JWT_SECRET || "changeme";
+const JWT_SECRET = process.env.JWT_SECRET || "onedesk_super_secret_jwt_key_2026";
 const PORT = Number(process.env.PORT || process.env.NODE_PORT || 8002);
 const EMERGENT_LLM_KEY = process.env.EMERGENT_LLM_KEY || "";
 const EMERGENT_EMAIL_KEY = process.env.EMERGENT_EMAIL_KEY || "";
@@ -53,8 +53,9 @@ const CLASSES = ["FE-A", "FE-B", "SE-A", "SE-B", "TE-A", "TE-B", "BE-A", "BE-B"]
 
 // ----- Mongo -----
 let db;
-const client = new MongoClient(MONGO_URL);
+let client;
 async function connectDb() {
+  client = new MongoClient(MONGO_URL);
   await client.connect();
   db = client.db(DB_NAME);
   const safeIndex = async (col, keys, opts) => {
