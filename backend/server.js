@@ -18,7 +18,7 @@ const crypto = require("crypto");
 const MONGO_URL = process.env.MONGO_URL;
 const DB_NAME = process.env.DB_NAME || "auracampus";
 const JWT_SECRET = process.env.JWT_SECRET || "changeme";
-const PORT = Number(process.env.NODE_PORT || 8002);
+const PORT = Number(process.env.PORT || process.env.NODE_PORT || 8002);
 const EMERGENT_LLM_KEY = process.env.EMERGENT_LLM_KEY || "";
 const EMERGENT_EMAIL_KEY = process.env.EMERGENT_EMAIL_KEY || "";
 const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "AuraCampus";
@@ -735,7 +735,7 @@ async function seed() {
   try {
     await connectDb();
     await seed();
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`[express] ${APP_NAME} server running on port ${PORT}`);
     });
   } catch (e) {
