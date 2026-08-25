@@ -5,17 +5,17 @@ function getCleanBackendUrl() {
   raw = String(raw).trim();
   // In local development mode, connect to local Express server on port 8002
   if (import.meta.env.DEV && !raw) return "http://localhost:8002";
-  // If a custom external backend URL is explicitly configured
-  if (raw && !raw.includes("onedesk-production") && !raw.includes("localhost")) {
+  // If explicitly provided via Vercel env
+  if (raw && !raw.includes("localhost") && !raw.includes("railway")) {
     if (!/^https?:\/\//i.test(raw)) raw = `https://${raw}`;
     return raw.replace(/\/+$/, "");
   }
-  // In production on Vercel, use same-origin relative /api (0 CORS, 0 Network Error!)
-  return "";
+  // Production default to Render live backend
+  return "https://onedesk-backend-1p4i.onrender.com";
 }
 
 export const BACKEND_URL = getCleanBackendUrl();
-export const API_BASE = BACKEND_URL ? `${BACKEND_URL}/api` : "/api";
+export const API_BASE = `${BACKEND_URL}/api`;
 
 const api = axios.create({ baseURL: API_BASE });
 
