@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: onedesk-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: DB_NAME
+        value: auracampus
+      - key: JWT_SECRET
+        value: onedesk_super_secret_jwt_key_2026
+      - key: MONGO_URL
+        value: mongodb+srv://atharvateli4711_db_user:psH9WfWq8E1YbksG@usersdb.hzybrfu.mongodb.net/?retryWrites=true&w=majority
