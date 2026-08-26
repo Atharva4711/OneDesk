@@ -640,7 +640,7 @@ app.get("/api/lostfound", auth, async (req, res) => {
   res.json(docs.map(clean));
 });
 app.post("/api/lostfound/:id/resolve", auth, async (req, res) => {
-  await db.collection("lostfound").updateOne({ id: req.params.id }, { $set: { resolved: true } });
+  await db.collection("lostfound").updateOne({ id: req.params.id }, { $set: { resolved: true, kind: "found", resolved_at: nowIso() } });
   res.json({ ok: true });
 });
 

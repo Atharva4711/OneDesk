@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import api, { formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { GraduationCap, Check, Plus, X } from "lucide-react";
+import { getYearFromClass } from "@/lib/academic";
 
 const DEFAULT_DEPARTMENTS = [
   "Computer Engineering",
@@ -240,8 +241,12 @@ export default function Signup() {
               <Field label="Class Division" testid="signup-class">
                 <select
                   value={form.class_name}
-                  onChange={(e) => update("class_name", e.target.value)}
-                  className="input bg-white cursor-pointer"
+                  onChange={(e) => {
+                    const cls = e.target.value;
+                    const autoYear = getYearFromClass(cls);
+                    setForm(f => ({ ...f, class_name: cls, academic_year: autoYear }));
+                  }}
+                  className="input bg-white cursor-pointer font-medium"
                 >
                   {meta.classes.map((c) => (
                     <option key={c} value={c}>
@@ -251,11 +256,11 @@ export default function Signup() {
                 </select>
               </Field>
 
-              <Field label="Academic Year" span testid="signup-year">
+              <Field label="Academic Year (Auto-filled)" span testid="signup-year">
                 <select
                   value={form.academic_year}
                   onChange={(e) => update("academic_year", e.target.value)}
-                  className="input bg-white cursor-pointer"
+                  className="input bg-slate-50 cursor-pointer font-medium"
                 >
                   {DEFAULT_YEARS.map((y) => (
                     <option key={y.value} value={y.value}>

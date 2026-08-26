@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { User, Mail, Phone, Building2, GraduationCap, Hash, KeyRound } from "lucide-react";
+import { GraduationCap, Hash, KeyRound } from "lucide-react";
+import { getYearFromClass, DEFAULT_YEARS as DEFAULT_YEARS_OPTIONS } from "@/lib/academic";
 
 const DEFAULT_DEPARTMENTS = [
   "Computer Engineering", "Information Technology", "Electronics & Telecommunication",
@@ -117,17 +118,21 @@ export default function Profile() {
             </label>
             {user?.role === "student" && <>
               <label className="text-xs font-semibold text-slate-600">
-                Class
-                <select value={form.class_name} onChange={(e) => setForm({ ...form, class_name: e.target.value })}
-                  data-testid="profile-class" className="mt-1 w-full rounded-xl border px-3 py-2">
+                Class Division
+                <select value={form.class_name} onChange={(e) => {
+                  const cls = e.target.value;
+                  const autoY = getYearFromClass(cls);
+                  setForm(f => ({ ...f, class_name: cls, academic_year: autoY }));
+                }}
+                  data-testid="profile-class" className="mt-1 w-full rounded-xl border px-3 py-2 font-medium">
                   {(meta.classes || []).map(c => <option key={c}>{c}</option>)}
                 </select>
               </label>
               <label className="text-xs font-semibold text-slate-600">
-                Academic year
+                Academic Year (Auto-filled)
                 <select value={form.academic_year} onChange={(e) => setForm({ ...form, academic_year: e.target.value })}
-                  data-testid="profile-year" className="mt-1 w-full rounded-xl border px-3 py-2">
-                  {(meta.academic_years || []).map(y => <option key={y}>{y}</option>)}
+                  data-testid="profile-year" className="mt-1 w-full rounded-xl border px-3 py-2 bg-slate-50 font-medium">
+                  {DEFAULT_YEARS_OPTIONS.map(y => <option key={y.value} value={y.value}>{y.label}</option>)}
                 </select>
               </label>
             </>}
